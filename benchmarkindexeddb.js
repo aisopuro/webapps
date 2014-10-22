@@ -15,8 +15,8 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
         var delreq = indexedDB.deleteDatabase(DB_NAME);
         var req;
         delreq.onsuccess = delreq.onerror = function (event) {
+            console.log('deleted');
             req = indexedDB.open(DB_NAME, DB_VERSION);
-
             req.onsuccess = function (evt) {
                 // Better use "this" than "req" to get the result to avoid problems with
                 // garbage collection.
@@ -32,10 +32,10 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
             req.onupgradeneeded = function (evt) {
                 console.log("openDb.onupgradeneeded");
                 var store = evt.currentTarget.result.createObjectStore(
-                    DB_STORE_NAME, { keyPath: 'id', autoIncrement: true }
+                    DB_STORE_NAME, { keyPath: 'name', autoIncrement: true }
                 );
 
-                store.createIndex('name', 'name', { unique: true });
+                store.createIndex('name', 'name', { multiEntry: true });
             };
         }
         
@@ -48,11 +48,9 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
     }
 
     function getBlob(key, store, success_callback) {
-        var req = store.get(key);
-        console.log('get', key);
+        var req = store.index('name').get(key);
         req.onsuccess = function(evt) {
             var value = evt.target.result;
-            console.log('got', value);
             if (value)
                 success_callback(value.blob);
         };
@@ -101,13 +99,12 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
     }
 
     function testLoadImage (recurse) {
-        console.log('runit');
-        var store = getObjectStore(DB_STORE_NAME, 'readonly');
+        var store = getObjectStore(DB_STORE_NAME, 'readwrite');
         var testImage = new Image();
         var startBlobLoad;
 
         var assignToImage = function (blob) {
-            testImage.src = blob;
+            testImage.src = URL.createObjectURL(blob);
         }
 
         testImage.addEventListener('load', function () {
@@ -135,6 +132,7 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
         }
         req.onsuccess = function (evt) {
             console.log("Insertion in DB successful");
+            console.log(evt, req);
             testLoadImage(timestorun);
         };
         req.onerror = function() {
