@@ -1,4 +1,5 @@
 var masterimage = new Image();
+var startload;
 
 // Take action when the image has loaded
 masterimage.addEventListener("load", function () {
@@ -23,8 +24,26 @@ masterimage.addEventListener("load", function () {
     catch (e) {
         console.log("Storage failed: " + e);
     }
-}, false);
+    console.log('Load time (internet): ', performance.now() - startload);
 
+    timeWebStorage(100);
+}, false);
+startload = performance.now();
+console.log('startload', startload);
 masterimage.src = "Satyrium_XXX.bmp";
 
 // TODO: research
+
+var timeWebStorage = function (recurse) {
+    var imgFromWebStorage = new Image();
+    var startedloading, stoppedloading;
+    imgFromWebStorage.addEventListener("load", function () {
+        stoppedloading = performance.now();
+        console.log('Web Storage:', recurse, stoppedloading - startedloading);
+        if (recurse > 1) {
+            timeWebStorage(recurse - 1)
+        };
+    });
+    startedloading = performance.now();
+    imgFromWebStorage.src = localStorage.getItem("masterimage"); // TODO: does this cache?
+}
