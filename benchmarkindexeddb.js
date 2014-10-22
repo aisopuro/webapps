@@ -12,42 +12,47 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
     function openDb() {
         console.log("openDb ...");
         // DEBUG: reset DB every time
+        var delreq = indexedDB.deleteDatabase(DB_NAME);
+        var req;
+        delreq.onsuccess = delreq.onerror = function (event) {
+            req = indexedDB.open(DB_NAME, DB_VERSION);
+
+            req.onsuccess = function (evt) {
+                // Better use "this" than "req" to get the result to avoid problems with
+                // garbage collection.
+                // db = req.result;
+                console.log("openDb DONE");
+                db = this.result;
+                addImageFromUrl({'name': 'masterimage'}, imagesrc);
+            };
+            req.onerror = function (evt) {
+                console.error("openDb:", evt.target.errorCode);
+            };
+
+            req.onupgradeneeded = function (evt) {
+                console.log("openDb.onupgradeneeded");
+                var store = evt.currentTarget.result.createObjectStore(
+                    DB_STORE_NAME, { keyPath: 'id', autoIncrement: true }
+                );
+
+                store.createIndex('name', 'name', { unique: true });
+            };
+        }
         
-        var req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onsuccess = function (evt) {
-            // Better use "this" than "req" to get the result to avoid problems with
-            // garbage collection.
-            // db = req.result;
-            console.log("openDb DONE");
-            db = this.result;
-        };
-        req.onerror = function (evt) {
-            console.error("openDb:", evt.target.errorCode);
-        };
-
-        req.onupgradeneeded = function (evt) {
-            console.log("openDb.onupgradeneeded");
-            var store = evt.currentTarget.result.createObjectStore(
-                DB_STORE_NAME, { keyPath: 'id', autoIncrement: true }
-            );
-
-            store.createIndex('name', 'name', { unique: true });
-        };
     }
-
-    openDb();
 
     console.log(db);
     function getObjectStore(store_name, mode) {
-        console.log(db); // First time through this is undefined, should fix somehow
         var tx = db.transaction(store_name, mode);
         return tx.objectStore(store_name);
     }
 
     function getBlob(key, store, success_callback) {
         var req = store.get(key);
+        console.log('get', key);
         req.onsuccess = function(evt) {
             var value = evt.target.result;
+            console.log('got', value);
             if (value)
                 success_callback(value.blob);
         };
@@ -95,8 +100,26 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
         // });
     }
 
+    function testLoadImage (recurse) {
+        console.log('runit');
+        var store = getObjectStore(DB_STORE_NAME, 'readonly');
+        var testImage = new Image();
+        var startBlobLoad;
+
+        var assignToImage = function (blob) {
+            testImage.src = blob;
+        }
+
+        testImage.addEventListener('load', function () {
+            console.log('IndexedDB load time: ', performance.now() - startBlobLoad);
+            if (recurse > 1) return testLoadImage(recurse - 1);
+        });
+        startBlobLoad = performance.now();
+        getBlob('masterimage', store, assignToImage);
+    }
+
     function addEntry(indexes, blob) {
-        console.log("addPublication arguments:", arguments);
+        console.log("addEntry arguments:", arguments);
         var obj = indexes;
         if (typeof blob != 'undefined')
             obj.blob = blob;
@@ -112,14 +135,12 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
         }
         req.onsuccess = function (evt) {
             console.log("Insertion in DB successful");
+            testLoadImage(timestorun);
         };
         req.onerror = function() {
             console.error("addPublication error", this.error);
             displayActionFailure(this.error);
         };
     }
-
-    addImageFromUrl({'image': 'masterimage'}, imagesrc);
-
-    // End code from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+    openDb();
 }

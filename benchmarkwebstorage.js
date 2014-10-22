@@ -20,7 +20,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun) {
         // Save image into localStorage
         try {
             var startstorage = performance.now();
-            localStorage.setItem("testImage", imgAsDataURL); // TODO: is this async?
+            localStorage.setItem("testImage", imgAsDataURL); // Not async: https://hacks.mozilla.org/2012/03/there-is-no-simple-solution-for-local-storage/
             console.log('Web Stroage write time:', performance.now() - startstorage);
             timeWebStorage(timestorun);
         }
