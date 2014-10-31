@@ -109,7 +109,8 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
 
         testImage.addEventListener('load', function () {
             console.log('IndexedDB load time: ', performance.now() - startBlobLoad);
-            if (recurse > 1) return testLoadImage(recurse - 1);
+            if (recurse > 1) return testLoadImage(recurse - 1)
+            else document.body.appendChild(testImage);
         });
         startBlobLoad = performance.now();
         getBlob('masterimage', store, assignToImage);

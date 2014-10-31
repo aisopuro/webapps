@@ -41,6 +41,9 @@ var benchmarkWebStorage = function (imagesrc, timestorun) {
             console.log('Web Storage:', recurse, stoppedloading - startedloading);
             if (recurse > 1) {
                 timeWebStorage(recurse - 1)
+            }
+            else {
+                document.body.appendChild(imageElement);
             };
         });
         startedloading = performance.now();
