@@ -37,7 +37,7 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
 
                 store.createIndex('name', 'name', { multiEntry: true });
             };
-        }
+        };
         
     }
 
@@ -105,7 +105,7 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
 
         var assignToImage = function (blob) {
             testImage.src = URL.createObjectURL(blob);
-        }
+        };
 
         testImage.addEventListener('load', function () {
             console.log('IndexedDB load time: ', performance.now() - startBlobLoad);

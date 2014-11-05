@@ -12,3 +12,4 @@ var TIMESTORUN = 10;
 //benchmarkWebStorage(IMAGE, TIMESTORUN);
 //benchmarkIndexedDB(IMAGE, TIMESTORUN);
 benchmarkFileAPI(IMAGE, TIMESTORUN);
+benchmarkWebSQL(IMAGE, TIMESTORUN);
