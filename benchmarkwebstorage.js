@@ -1,4 +1,4 @@
-var benchmarkWebStorage = function (imagesrc, timestorun) {
+var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
     var imageElement = new Image();
     var startload;
 
@@ -32,7 +32,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun) {
 
     startload = performance.now();
     imageElement.src = imagesrc;
-
+    var webStorageData = [];
     var timeWebStorage = function (recurse) {
         var imgFromWebStorage = new Image();
         var startedloading, stoppedloading;
@@ -40,10 +40,11 @@ var benchmarkWebStorage = function (imagesrc, timestorun) {
             stoppedloading = performance.now();
             console.log('Web Storage:', recurse, stoppedloading - startedloading);
             if (recurse > 1) {
-                timeWebStorage(recurse - 1)
+                webStorageData.push(stoppedloading - startedloading);
+                timeWebStorage(recurse - 1);
             }
             else {
-                document.body.appendChild(imageElement);
+                callback(webStorageData);
             };
         });
         startedloading = performance.now();
