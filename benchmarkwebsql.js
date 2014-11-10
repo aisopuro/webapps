@@ -22,15 +22,32 @@ var benchmarkWebSQL = function (imagesrc, timestorun) {
 	// Database initialization
 	var db;
 	var version = 1.0;
-	var dbName = "tizendb";
-	var dbDisplayName = "tizen_test_db";
+	var dbName = "testdb";
+	var dbDisplayName = "test_db";
 	var dbSize = 2 * 1024 * 1024;
 	try 
 	{
-	   db = openDatabase(dbName, version, dbDisplayName, dbSize, function(database) 
-	   {
-	      alert("database creation callback");
-	   });
+		db = openDatabase(dbName, version, dbDisplayName, dbSize, function(database) 
+		{
+			console.log('Database ready.');
+			alert("database creation callback");
+		});
+
+		// start transaction, create table, insert data
+		db.transaction(function (tx) {
+			tx.executeSql('CREATE TABLE IF NOT EXISTS foo (id unique, text)');
+			tx.executeSql('INSERT INTO foo (id, text) VALUES (1, "synergies")');
+			tx.executeSql('SELECT * FROM foo', [], function (tx, results) {
+				var len = results.rows.length, i;
+				for (i = 0; i < len; i++) {
+					console.log(results.rows.item(i).text);
+				}
+			});
+		});
+
+		db.transaction(function (tx) {
+			tx.executeSql('DROP TABLE foo');
+		});
 	}
 	catch (e) {
 		console.log('Storage failed: ' + e);
