@@ -8,12 +8,12 @@ masterimage.src = 'http://www.aaoe.fr/public/MC/MC11/Satyrium_XXX.bmp';
 
 // Note for report: only File API can handle binaries, everything else has to be
 // stringified from canvas, which unpacks compressed images, right?
-var IMAGE = 'Satyrium_XXX.bmp';
+var IMAGE = ['Satyrium_XXX_2.bmp', 'Satyrium_XXX_3.bmp', 'Satyrium_XXX_4.bmp', 'Satyrium_XXX_5.bmp'];
 var TIMESTORUN = 100, nextTest = 0;
 var TESTS = [
     {elemname: "#webStoreGraph", fun: benchmarkWebStorage},
-    {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB},  // First load is huge, why?
-    {elemname: "#fileAPIGraph", fun: benchmarkFileAPI}
+    // {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB},  // First load is huge, why?
+    // {elemname: "#fileAPIGraph", fun: benchmarkFileAPI}
 ];
 
 function graphResult (runData) {
