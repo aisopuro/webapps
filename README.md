@@ -14,4 +14,8 @@ WebSQL
 
 ~~File API~~
 
+Averages
+
+Variances?
+
 Use different images interleaved to test for cache use
