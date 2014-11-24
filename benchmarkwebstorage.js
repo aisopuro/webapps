@@ -1,37 +1,60 @@
 var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
-    var imageElement = new Image();
-    var startload;
+    console.log('bench');
+    if (!Array.isArray(imagesrc)) {
+        imagesrc = [imagesrc];
+    }
+    console.log(imagesrc);
+    var imageNames = [];
+    var currentIndex = 0;
+    var loadsDone = [];
+    for (var i = 0; i < imagesrc.length; i++) {
+        console.log('for')
+        loadsDone.push(false);
+        var imageElement = new Image();
+        var startload;
 
-    imageElement.addEventListener('load', function () {
-        var imgCanvas = document.createElement("canvas"),
-        imgContext = imgCanvas.getContext("2d");
- 
-        // Make sure canvas is as big as the picture
-        imgCanvas.width = imageElement.width;
-        imgCanvas.height = imageElement.height;
+        imageElement.addEventListener('load', function () {
+            var imgCanvas = document.createElement("canvas"),
+            imgContext = imgCanvas.getContext("2d");
      
-        // Draw image into canvas element
-        imgContext.drawImage(imageElement, 0, 0, imageElement.width, imageElement.height);
-     
-        // Get canvas contents as a data URL
-        var imgAsDataURL = imgCanvas.toDataURL("image/bmp"); // TODO: does this compress?
-        console.log(imgAsDataURL.length);
-     
-        // Save image into localStorage
-        try {
-            var startstorage = performance.now();
-            localStorage.setItem("testImage", imgAsDataURL); // Not async: https://hacks.mozilla.org/2012/03/there-is-no-simple-solution-for-local-storage/
-            console.log('Web Stroage write time:', performance.now() - startstorage);
+            // Make sure canvas is as big as the picture
+            imgCanvas.width = imageElement.width;
+            imgCanvas.height = imageElement.height;
+         
+            // Draw image into canvas element
+            imgContext.drawImage(imageElement, 0, 0, imageElement.width, imageElement.height);
+         
+            // Get canvas contents as a data URL
+            var imgAsDataURL = imgCanvas.toDataURL("image/bmp"); // TODO: does this compress?
+            console.log(imgAsDataURL.length);
+         
+            // Save image into localStorage
+            try {
+                var startstorage = performance.now();
+                var name = "testImage" + currentIndex;
+                localStorage.setItem(name, imgAsDataURL); // Not async: https://hacks.mozilla.org/2012/03/there-is-no-simple-solution-for-local-storage/
+                imageNames.push(name);
+                loadsDone[currentIndex++] = true;
+                console.log('Web Stroage write time:', performance.now() - startstorage);
+                storeCallback();
+            }
+            catch (e) {
+                console.log("Storage failed: " + e);
+            }
+        });
+
+        startload = performance.now();
+        imageElement.src = imagesrc[i];
+    }
+
+    function storeCallback () {
+        if (loadsDone.length === imagesrc.length &&
+            loadsDone.every(function (value) {return value;})
+        ) {
             timeWebStorage(timestorun);
         }
-        catch (e) {
-            console.log("Storage failed: " + e);
-        }
-    });
-
-
-    startload = performance.now();
-    imageElement.src = imagesrc;
+    }
+    var current = 0;
     var webStorageData = [];
     var timeWebStorage = function (recurse) {
         var imgFromWebStorage = new Image();
@@ -48,6 +71,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
             };
         });
         startedloading = performance.now();
-        imgFromWebStorage.src = localStorage.getItem("testImage"); // TODO: does this cache?
+        current = current < imageNames.length ? current : 0;
+        imgFromWebStorage.src = localStorage.getItem(imageNames[current++]); // TODO: does this cache?
     }
 }
