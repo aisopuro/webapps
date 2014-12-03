@@ -13,7 +13,8 @@ var TIMESTORUN = 100, nextTest = 0;
 var TESTS = [
     {elemname: "#webStoreGraph", fun: benchmarkWebStorage},
     {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB},  // First load is huge, why?
-    {elemname: "#fileAPIGraph", fun: benchmarkFileAPI}
+    {elemname: "#fileAPIGraph", fun: benchmarkFileAPI},
+    {elemname: "#websqlGraph", fun: benchmarkWebSQL}
 ];
 
 function graphResult (runData) {

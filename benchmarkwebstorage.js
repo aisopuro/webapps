@@ -45,9 +45,9 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
             }
             else {
                 callback(webStorageData);
-            };
+            }
         });
         startedloading = performance.now();
         imgFromWebStorage.src = localStorage.getItem("testImage"); // TODO: does this cache?
-    }
-}
+    };
+};
