@@ -1,4 +1,4 @@
-function benchmarkIndexedDB (imagesrc, timestorun) {
+function benchmarkIndexedDB (imagesrc, timestorun, callback) {
     // Code from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
     // Slightly modified
 
@@ -97,7 +97,7 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
         //   }
         // });
     }
-
+    var results = [];
     function testLoadImage (recurse) {
         var store = getObjectStore(DB_STORE_NAME, 'readwrite');
         var testImage = new Image();
@@ -109,8 +109,11 @@ function benchmarkIndexedDB (imagesrc, timestorun) {
 
         testImage.addEventListener('load', function () {
             console.log('IndexedDB load time: ', performance.now() - startBlobLoad);
-            if (recurse > 1) return testLoadImage(recurse - 1)
-            else document.body.appendChild(testImage);
+            if (recurse > 1) {
+                results.push(performance.now() - startBlobLoad);
+                return testLoadImage(recurse - 1);
+            }
+            else callback(results);
         });
         startBlobLoad = performance.now();
         getBlob('masterimage', store, assignToImage);
