@@ -11,14 +11,16 @@ masterimage.src = 'http://www.aaoe.fr/public/MC/MC11/Satyrium_XXX.bmp';
 var IMAGE = ['Satyrium_XXX_2.bmp', 'Satyrium_XXX_3.bmp', 'Satyrium_XXX_4.bmp', 'Satyrium_XXX_5.bmp'];
 var TIMESTORUN = 50 * IMAGE.length, nextTest = 0;
 var TESTS = [
-    {elemname: "#webStoreGraph", fun: benchmarkWebStorage},
-    {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB},  // First load is huge, why?
-    {elemname: "#fileAPIGraph", fun: benchmarkFileAPI},
-    {elemname: "#websqlGraph", fun: benchmarkWebSQL}
+    {elemname: "#webStoreGraph", fun: benchmarkWebStorage, name: "Web Storage"},
+    // {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB, name: "IndexedDB"},  // First load is huge, why?
+    // {elemname: "#fileAPIGraph", fun: benchmarkFileAPI, name: "File API"},
+    // {elemname: "#websqlGraph", fun: benchmarkWebSQL, name: "WebSQL"}
 ];
+var results = {};
 
 function graphResult (runData) {
     var current = TESTS[nextTest];
+    results[current.name] = runData;
     var webStorageData = [];
     for (var i = 0; i < runData.length; i++) {
         webStorageData[i] = {x: i, y: runData[i]};
@@ -60,6 +62,45 @@ function graphResult (runData) {
 function runNextTest () {
     if (nextTest >= TESTS.length) {
         // TODO: make comparison graphs here
+        var data = results["Web Storage"];
+        var sum = data.reduce(function (last, current) {
+            return last + current;
+        });
+        var average = sum / data.length;
+        var squaresum = data.reduce(function (last, current) {
+            return last + (current - average) * (current - average);
+        });
+        var variance = squaresum / data.length;
+        var graph = new Rickshaw.Graph({
+            element: document.querySelector("#comparisons"),
+            renderer: 'bar',
+            series: [{
+                data: [{x: 0, y: average}, {x: 1, y: variance}],
+                color: 'green'
+            }]
+        });
+
+        var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+            graph: graph
+        });
+
+        var time = new Rickshaw.Fixtures.Time();
+        var mseconds = time.unit('millisecond');
+
+        var yAxis = new Rickshaw.Graph.Axis.Y({
+            graph: graph,
+            timeUnit: mseconds,
+            //orientation: 'left' //TODO: need to mod css to do this
+        });
+
+        yAxis.render();
+
+        var xAxis = new Rickshaw.Graph.Axis.X( {
+            graph: graph,
+            //orientation: "bottom" TODO: need to mod css to do this (need "below")
+        } );
+         
+        graph.render();
         return;
     }
     else {
