@@ -71,7 +71,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
             }
             else {
                 callback(webStorageData);
-            };
+            }
         });
         startedloading = performance.now();
         current = current % imageNames.length;
