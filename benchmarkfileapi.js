@@ -52,6 +52,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
                 console.log('file', file);
                 var reader = new FileReader();
                 reader.onload = function (event) {
+                    console.log(event);
                     image.src = event.target.result;
                 }
                 reader.readAsDataURL(file);
@@ -76,6 +77,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
             fileEntry.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function (event) {
                     console.log("Wrote!");
+                    console.log(event);
                     loadsDone.push(true);
                     storeCallback();
                 }
@@ -94,7 +96,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
         addImageFromUrl(fileSystem);
     }
     function connectFilesystem () {
-        navigator.webkitPersistentStorage.requestQuota(505*1024*imageUrl.length/*505 KB per image*/, function (grantedBytes) {
+        navigator.webkitPersistentStorage.requestQuota(673*1024*imageUrl.length/*673 KB per image*/, function (grantedBytes) {
             console.log('Granted!', grantedBytes);
             //if (grantedBytes <= 0) return;
             var requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
