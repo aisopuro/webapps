@@ -1,5 +1,7 @@
 var benchmarkWebSQL = function (imagesrc, timestorun) {
-
+    if (!Array.isArray(imagesrc)) {
+        imagesrc = [imagesrc];
+    }
 	var imageElement = new Image();
     var startload;
     

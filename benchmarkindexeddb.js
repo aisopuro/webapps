@@ -2,10 +2,16 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
     // Code from https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
     // Slightly modified
 
+    if (!Array.isArray(imagesrc)) {
+        imagesrc = [imagesrc];
+    }
+
     const DB_NAME = 'image-time-test-indexeddb';
     const DB_VERSION = 1; // Use a long long for this value (don't use a float)
     const DB_STORE_NAME = 'images';
 
+    var loadsDone = [];
+    var imageNames = [];
 
     var db;
 
@@ -23,7 +29,7 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
                 // db = req.result;
                 console.log("openDb DONE");
                 db = this.result;
-                addImageFromUrl({'name': 'masterimage'}, imagesrc);
+                openDone();
             };
             req.onerror = function (evt) {
                 console.error("openDb:", evt.target.errorCode);
@@ -77,25 +83,22 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
             }
         };
         xhr.send();
+    }
 
-        // We can't use jQuery here because as of jQuery 1.8.3 the new "blob"
-        // responseType is not handled.
-        // http://bugs.jquery.com/ticket/11461
-        // http://bugs.jquery.com/ticket/7248
-        // $.ajax({
-        //   url: url,
-        //   type: 'GET',
-        //   xhrFields: { responseType: 'blob' },
-        //   success: function(data, textStatus, jqXHR) {
-        //     console.log("Blob retrieved");
-        //     console.log("Blob:", data);
-        //     // addPublication(biblioid, title, year, data);
-        //   },
-        //   error: function(jqXHR, textStatus, errorThrown) {
-        //     console.error(errorThrown);
-        //     displayActionFailure("Error during blob retrieval");
-        //   }
-        // });
+    function openDone () {
+        for (var i = 0; i < imagesrc.length; i++) {
+            var name = 'testimage' + i;
+            imageNames.push(name);
+            addImageFromUrl({'name': name}, imagesrc[i]);
+        }
+    }
+
+    function storeCallback () {
+        if (loadsDone.length === imagesrc.length &&
+            loadsDone.every(function (value) {return value;})
+        ) {
+            testLoadImage(timestorun);
+        }
     }
     var results = [];
     function testLoadImage (recurse) {
@@ -116,7 +119,7 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
             else callback(results);
         });
         startBlobLoad = performance.now();
-        getBlob('masterimage', store, assignToImage);
+        getBlob(imageNames[recurse % imageNames.length], store, assignToImage);
     }
 
     function addEntry(indexes, blob) {
@@ -137,7 +140,8 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
         req.onsuccess = function (evt) {
             console.log("Insertion in DB successful");
             console.log(evt, req);
-            testLoadImage(timestorun);
+            loadsDone.push(true);
+            storeCallback();
         };
         req.onerror = function() {
             console.error("addPublication error", this.error);

@@ -1,25 +1,35 @@
 function benchmarkFileAPI (imageUrl, timestorun, callback) {
-    var FILESYSTEM, FILENAME = 'fileapicopy.bmp';
+    var FILESYSTEM, FILENAME = 'fileapicopy.bmp', FILENAMES = [];
+    if (!Array.isArray(imageUrl)) {
+        imageUrl = [imageUrl];
+    }
+    var loadsDone = [];
+    var loadCount = 0;
     function addImageFromUrl(fileSystem) {
-
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', imageUrl, true);
+        xhr.open('GET', imageUrl[loadCount++], true);
         // Setting the wanted responseType to "blob"
         // http://www.w3.org/TR/XMLHttpRequest2/#the-response-attribute
         xhr.responseType = 'blob';
         xhr.onload = function (evt) {
+            console.log(evt);
+            setTimeout(function() {}, 1000);
             if (xhr.status == 200) {
                 console.log("Blob retrieved");
                 var blob = xhr.response;
                 console.log("Blob:", blob);
                 writeBlobToFile(fileSystem, blob);
+                if (loadCount < imageUrl.length) {
+                    addImageFromUrl(fileSystem);
+                }
             } else {
                 console.error("addImageFromUrl error:",
-                    xhr.responseText, xhr.status
+                    xhr
                 );
             }
         };
         xhr.send();
+        
     }
     var results = [];
     function timeFileAPILoad (recurse) {
@@ -35,7 +45,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
             }
         });
         console.log('getfile');
-        FILESYSTEM.root.getFile(FILENAME, {}, function (fileEntry) {
+        FILESYSTEM.root.getFile(FILENAMES[recurse % imageUrl.length], {}, function (fileEntry) {
             console.log(fileEntry);
             console.log('readas');
             fileEntry.file(function(file) {
@@ -49,16 +59,27 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
         }, errorhandler);
     }
 
+    function storeCallback () {
+        if (loadsDone.length === imageUrl.length &&
+            loadsDone.every(function (value) {return value;})
+        ) {
+            timeFileAPILoad(timestorun);
+        }
+    }
+
     function writeBlobToFile (fileSystem, blob) {
-        console.log("Finish me!", imageUrl, timestorun);
-        console.log(fileSystem);
-        fileSystem.root.getFile(FILENAME, {create:true}, function (fileEntry) {
+        var name = "testFile" + FILENAMES.length;
+        FILENAMES.push(name);
+        console.log(name);
+        fileSystem.root.getFile(name, {create:true}, function (fileEntry) {
             console.log('got fileentry', fileEntry);
             fileEntry.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function (event) {
-                    console.log("Wrote!")
-                    timeFileAPILoad(timestorun);
+                    console.log("Wrote!");
+                    loadsDone.push(true);
+                    storeCallback();
                 }
+                console.log(blob);
                 fileWriter.write(blob);
             }, errorhandler);
         }, errorhandler);
@@ -73,7 +94,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
         addImageFromUrl(fileSystem);
     }
     function connectFilesystem () {
-        navigator.webkitPersistentStorage.requestQuota(505*1024/*505 KB*/, function (grantedBytes) {
+        navigator.webkitPersistentStorage.requestQuota(505*1024*imageUrl.length/*505 KB per image*/, function (grantedBytes) {
             console.log('Granted!', grantedBytes);
             //if (grantedBytes <= 0) return;
             var requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;

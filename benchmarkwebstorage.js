@@ -14,6 +14,9 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
         var startload;
 
         imageElement.addEventListener('load', function () {
+            if (imageElement.width + imageElement.height == 0) {
+                console.log('0-image!!!!!!!!!!!!!!!!!!!!!!');
+            }
             var imgCanvas = document.createElement("canvas"),
             imgContext = imgCanvas.getContext("2d");
      
@@ -71,7 +74,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
             };
         });
         startedloading = performance.now();
-        current = current < imageNames.length ? current : 0;
+        current = current % imageNames.length;
         imgFromWebStorage.src = localStorage.getItem(imageNames[current++]); // TODO: does this cache?
     }
 }
