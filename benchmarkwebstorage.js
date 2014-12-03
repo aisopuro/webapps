@@ -8,7 +8,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
     var currentIndex = 0;
     var loadsDone = [];
     for (var i = 0; i < imagesrc.length; i++) {
-        console.log('for')
+        console.log('for');
         loadsDone.push(false);
         var imageElement = new Image();
         var startload;
