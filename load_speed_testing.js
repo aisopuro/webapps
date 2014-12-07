@@ -12,26 +12,46 @@ var IMAGE = ['Satyrium_XXX_2.bmp', 'Satyrium_XXX_3.bmp', 'Satyrium_XXX_4.bmp', '
 var TIMESTORUN = 50 * IMAGE.length, nextTest = 0;
 var TESTS = [
     {elemname: "#webStoreGraph", fun: benchmarkWebStorage, name: "Web Storage"},
-    // {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB, name: "IndexedDB"},  // First load is huge, why?
-    // {elemname: "#fileAPIGraph", fun: benchmarkFileAPI, name: "File API"},
-    // {elemname: "#websqlGraph", fun: benchmarkWebSQL, name: "WebSQL"}
+    {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB, name: "IndexedDB"},  // First load is huge, why?
+    {elemname: "#fileAPIGraph", fun: benchmarkFileAPI, name: "File API"},
+    {elemname: "#webSQLGraph", fun: benchmarkWebSQL, name: "WebSQL"}
+
 ];
 var results = {};
 
 function graphResult (runData) {
+	// Calculate average
+	var sum = runData.reduce(function (last, current) {
+        return last + current;
+    });
+    var average = sum / runData.length;
+
     var current = TESTS[nextTest];
     results[current.name] = runData;
+    document.querySelector(current.elemname).innerHTML = '';
     var webStorageData = [];
+    var averageData = [];
     for (var i = 0; i < runData.length; i++) {
         webStorageData[i] = {x: i, y: runData[i]};
+        averageData[i] = {x: i, y: average};
     }
+
     var graph = new Rickshaw.Graph({
         element: document.querySelector(current.elemname),
-        renderer: 'bar',
+        renderer: 'multi',
+        stack: false,
         series: [{
+        	name: 'Webstorage',
             data: webStorageData,
-            color: 'steelblue'
-        }]
+            color: 'steelblue',
+            renderer: 'bar'
+        },{
+        	name: 'Webstorage average',
+            data: averageData,
+            color: 'rgba(127, 0, 0, 0.3)',
+            renderer: 'line'
+        }
+        ]
     });
 
     var hoverDetail = new Rickshaw.Graph.HoverDetail( {
