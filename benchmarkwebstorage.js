@@ -64,7 +64,7 @@ var benchmarkWebStorage = function (imagesrc, timestorun, callback) {
         var startedloading, stoppedloading;
         imgFromWebStorage.addEventListener("load", function () {
             stoppedloading = performance.now();
-            // console.log('Web Storage:', recurse, stoppedloading - startedloading);
+            console.log('Web Storage:', recurse, stoppedloading - startedloading);
             if (recurse > 1) {
                 webStorageData.push(stoppedloading - startedloading);
                 timeWebStorage(recurse - 1);

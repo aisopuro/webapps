@@ -33,6 +33,7 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
     }
     var results = [];
     function timeFileAPILoad (recurse) {
+        console.log('FILE API: ' + recurse);
         var startLoad = performance.now();
         var image = new Image();
         image.addEventListener('load', function () {
