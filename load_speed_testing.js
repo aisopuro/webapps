@@ -9,7 +9,7 @@ masterimage.src = 'http://www.aaoe.fr/public/MC/MC11/Satyrium_XXX.bmp';
 // Note for report: only File API can handle binaries, everything else has to be
 // stringified from canvas, which unpacks compressed images, right?
 var IMAGE = ['Satyrium_XXX_2.bmp', 'Satyrium_XXX_3.bmp', 'Satyrium_XXX_4.bmp', 'Satyrium_XXX_5.bmp'];
-var TIMESTORUN = 10 * IMAGE.length, nextTest = 0;
+var TIMESTORUN = 3 * IMAGE.length, nextTest = 0;
 var TESTS = [
     {elemname: "#webStoreGraph", fun: benchmarkWebStorage, name: "Web Storage"},
     {elemname: "#indexedDBGraph", fun: benchmarkIndexedDB, name: "IndexedDB"},  // First load is huge, why?
