@@ -44,15 +44,15 @@ function benchmarkFileAPI (imageUrl, timestorun, callback) {
                 callback(results);
             }
         });
-        console.log('getfile');
+        // console.log('getfile');
         FILESYSTEM.root.getFile(FILENAMES[recurse % imageUrl.length], {}, function (fileEntry) {
-            console.log(fileEntry);
-            console.log('readas');
+            // console.log(fileEntry);
+            // console.log('readas');
             fileEntry.file(function(file) {
-                console.log('file', file);
+                // console.log('file', file);
                 var reader = new FileReader();
                 reader.onload = function (event) {
-                    console.log(event);
+                    // console.log(event);
                     image.src = event.target.result;
                 }
                 reader.readAsDataURL(file);

@@ -111,7 +111,7 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
         };
 
         testImage.addEventListener('load', function () {
-            console.log('IndexedDB load time: ', performance.now() - startBlobLoad);
+            // console.log('IndexedDB load time: ', performance.now() - startBlobLoad);
             if (recurse > 1) {
                 results.push(performance.now() - startBlobLoad);
                 return testLoadImage(recurse - 1);
@@ -123,7 +123,7 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
     }
 
     function addEntry(indexes, blob) {
-        console.log("addEntry arguments:", arguments);
+        // console.log("addEntry arguments:", arguments);
         var obj = indexes;
         if (typeof blob != 'undefined')
             obj.blob = blob;
@@ -138,8 +138,8 @@ function benchmarkIndexedDB (imagesrc, timestorun, callback) {
                 throw e;
         }
         req.onsuccess = function (evt) {
-            console.log("Insertion in DB successful");
-            console.log(evt, req);
+            // console.log("Insertion in DB successful");
+            // console.log(evt, req);
             loadsDone.push(true);
             storeCallback();
         };

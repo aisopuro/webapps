@@ -88,7 +88,7 @@ var benchmarkWebSQL = function (imagesrc, timestorun, callback) {
         var startedloading, stoppedloading;
         imgFromWebSQL.addEventListener("load", function () {
             stoppedloading = performance.now();
-            console.log('Web SQL:', recurse, stoppedloading - startedloading);
+            // console.log('Web SQL:', recurse, stoppedloading - startedloading);
             if (recurse > 1) {
                 webSQLData.push(stoppedloading - startedloading);
                 timeWebSQL(recurse - 1);
